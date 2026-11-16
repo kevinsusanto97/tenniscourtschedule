@@ -2,6 +2,6 @@
   "rewrites": [
     { "source": "/", "destination": "/docs/index.html" },
     { "source": "/admin", "destination": "/docs/admin.html" },
-    { "source": "/:path((?!docs/).*)", "destination": "/docs/:path" }
+    { "source": "/:path((?!docs/|api/).*)", "destination": "/docs/:path" }
   ]
 }

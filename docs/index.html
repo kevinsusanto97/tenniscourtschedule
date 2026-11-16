@@ -27,6 +27,7 @@
   --free: #2f8f6c;
   --free-soft: #dff1e8;
   --past: #b9c5be;
+  --danger: #b3261e;
   --f-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --f-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --r: 14px;
@@ -35,14 +36,14 @@
   :root:not([data-theme="light"]) {
     --court: #1c4d3f; --court-deep: #10261f; --ball: #d7ef3a; --ball-ink: #26300a;
     --bg: #0d1613; --surface: #15211c; --line: #24342d; --fg: #e6efe9; --muted: #92a69b;
-    --taken: #1c2a24; --free: #55c49a; --free-soft: #173a2e; --past: #46564f;
+    --taken: #1c2a24; --free: #55c49a; --free-soft: #173a2e; --past: #46564f; --danger: #ff8a80;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --court: #1c4d3f; --court-deep: #10261f; --ball: #d7ef3a; --ball-ink: #26300a;
   --bg: #0d1613; --surface: #15211c; --line: #24342d; --fg: #e6efe9; --muted: #92a69b;
-  --taken: #1c2a24; --free: #55c49a; --free-soft: #173a2e; --past: #46564f;
+  --taken: #1c2a24; --free: #55c49a; --free-soft: #173a2e; --past: #46564f; --danger: #ff8a80;
   color-scheme: dark;
 }
 
@@ -148,6 +149,69 @@ main .wrap { padding-block: 18px 40px; display: flex; flex-direction: column; ga
 }
 .book:focus-visible { outline: 2px solid var(--ball); outline-offset: 2px; }
 .book.ok { background: var(--free); }
+.voters { display: flex; flex-wrap: wrap; gap: 4px; max-width: 100%; }
+.voter { font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 99px; background: var(--free-soft); color: var(--free); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.voter.more { background: var(--taken); color: var(--muted); }
+.slot-actions { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 2px; }
+.book { margin-top: 0; }
+.vote {
+  appearance: none; font: inherit; font-size: 14px; font-weight: 600; min-height: 38px; width: 100%; cursor: pointer;
+  border-radius: 10px; border: 1px solid var(--free); background: transparent; color: var(--free);
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.vote .count { background: var(--free); color: var(--surface); border-radius: 99px; font-size: 11px; line-height: 1; padding: 3px 7px; font-variant-numeric: tabular-nums; }
+.vote.mine { background: var(--free-soft); }
+.vote:focus-visible { outline: 2px solid var(--free); outline-offset: 2px; }
+.slot.flash { animation: flash 1.4s ease-out; }
+@keyframes flash { 0%, 40% { box-shadow: 0 0 0 3px var(--ball); } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+/* Vote sheet */
+.sheet-backdrop { position: fixed; inset: 0; z-index: 30; background: rgba(8, 20, 15, .55); display: flex; align-items: flex-end; justify-content: center; }
+.sheet {
+  width: 100%; max-width: 480px; max-height: 88vh; overflow: auto;
+  background: var(--surface); color: var(--fg); border-radius: 18px 18px 0 0;
+  padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column; gap: 12px;
+}
+.sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.sheet h2 { font-family: var(--f-display); font-size: 26px; line-height: 1.05; margin: 0; }
+.sheet .when { margin: 4px 0 0; color: var(--free); font-weight: 600; font-variant-numeric: tabular-nums; }
+.sheet .hint { margin: 0; color: var(--muted); font-size: 13.5px; }
+.sheet .x { appearance: none; border: 0; background: var(--taken); color: var(--fg); width: 36px; height: 36px; border-radius: 50%; font-size: 20px; line-height: 1; cursor: pointer; flex: none; }
+.sheet .x:focus-visible { outline: 2px solid var(--free); outline-offset: 2px; }
+.sheet .voters .voter { font-size: 13.5px; padding: 4px 10px; }
+.sheet label { font-size: 13px; font-weight: 600; }
+.sheet form { display: flex; flex-direction: column; gap: 6px; }
+.form-row { display: flex; gap: 8px; }
+.form-row input {
+  flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg);
+}
+.form-row input:focus-visible { outline: 2px solid var(--free); outline-offset: 1px; }
+.btn.primary { background: var(--court); border-color: var(--court); color: #fff; }
+.btn:disabled { opacity: .6; cursor: default; }
+.mine-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: var(--free-soft); border-radius: 10px; padding: 10px 12px; }
+.err { margin: 0; color: var(--danger); font-size: 13.5px; }
+@media (min-width: 600px) { .sheet-backdrop { align-items: center; } .sheet { border-radius: 18px; } }
+
+/* Voted-times summary */
+.side { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+section.votes h2 { font-family: var(--f-display); font-size: 22px; margin: 0 0 4px; }
+section.votes > p { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+.vlist { display: flex; flex-direction: column; gap: 8px; }
+.vrow {
+  appearance: none; font: inherit; text-align: left; width: 100%; cursor: pointer; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center;
+}
+.vrow:focus-visible { outline: 2px solid var(--free); outline-offset: 2px; }
+.vrow .when { font-family: var(--f-display); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.vrow .who { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; grid-column: 1; }
+.vrow .n { grid-column: 2; grid-row: 1 / span 2; text-align: right; font-family: var(--f-display); font-size: 28px; line-height: 1; color: var(--free); font-variant-numeric: tabular-nums; }
+.vrow .n small { display: block; font-family: var(--f-body); font-size: 11px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+.vrow.past { opacity: .55; }
+.vrow.top { border-color: var(--free); }
+
 .toast {
   position: fixed; z-index: 20; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
   bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: 528px; margin: 0 auto;
@@ -209,18 +273,19 @@ footer { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--lin
 @media (min-width: 960px) {
   .wrap { max-width: 1120px; }
   main .wrap { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); align-items: start; gap: 28px 40px; padding-block: 28px 56px; }
-  section.week { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 96px); }
+  .side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 96px); gap: 32px; }
   footer { grid-column: 1 / -1; }
   .summary h2 { font-size: 34px; }
   .toast { left: auto; right: max(24px, env(safe-area-inset-right, 0px)); max-width: 420px; }
 }
 @media (hover: hover) {
   .book:hover { filter: brightness(1.12); }
+  .vote:hover, .vrow:hover { border-color: var(--free); background: var(--free-soft); }
   .day:not([aria-selected="true"]):hover { background: rgba(255,255,255,.13); }
   table.grid tr:hover th.rowh { color: var(--free); }
 }
 
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
 <style>body { margin: 0; } [hidden] { display: none !important; }</style>
@@ -244,13 +309,21 @@ footer { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--lin
   <div class="wrap">
     <section id="detail" aria-live="polite"><div class="empty">Loading schedule…</div></section>
 
-    <section class="week">
-      <h2>Week at a glance</h2>
-      <p>Green = free hour. Tap a row to see that day.</p>
-      <div class="grid-scroll"><table class="grid" id="grid"></table></div>
-    </section>
+    <aside class="side">
+      <section class="votes" id="votes-section">
+        <h2>Voted times</h2>
+        <p>Times members want to play. Tap one to open it.</p>
+        <div class="vlist" id="votes-list"><div class="empty">Loading votes…</div></div>
+      </section>
 
-    <footer>Hours not shown are already booked. The schedule can change at any time, so check with the club committee before you come.</footer>
+      <section class="week">
+        <h2>Week at a glance</h2>
+        <p>Green = free hour. Tap a row to see that day.</p>
+        <div class="grid-scroll"><table class="grid" id="grid"></table></div>
+      </section>
+    </aside>
+
+    <footer>Hours not shown are already booked. Votes only show interest; use Reserve to book with the committee. The schedule can change at any time, so check with the club committee before you come.</footer>
   </div>
 </main>
 
@@ -308,6 +381,143 @@ function boot(text) {
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 
   var days = parseSchedule(text).days;
+
+  // Votes: shared through /api/votes; this device remembers its name and its own votes.
+  var votes = {}, votesState = "loading"; // loading | ok | off
+  var myVotes = {}, myName = "";
+  try { myVotes = JSON.parse(localStorage.getItem("myVotes") || "{}") || {}; myName = localStorage.getItem("voterName") || ""; } catch (e) {}
+  function saveLocal() { try { localStorage.setItem("myVotes", JSON.stringify(myVotes)); localStorage.setItem("voterName", myName); } catch (e) {} }
+  function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function slotId(d, s) { return ymd(d.date) + "_" + s.label; }
+  function shortDate(d) { return DAY_NAMES[d.getDay()].slice(0, 3) + " " + d.getDate() + " " + MONTH_NAMES[d.getMonth()].slice(0, 3); }
+  function voterChips(names, max) {
+    var box = el("div", "voters");
+    names.slice(0, max).forEach(function (n) { var c = el("span", "voter"); c.textContent = n; box.appendChild(c); });
+    if (names.length > max) box.appendChild(el("span", "voter more", "+" + (names.length - max)));
+    return box;
+  }
+  function loadVotes() {
+    return fetch("/api/votes", { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (j) { votes = j.votes || {}; votesState = "ok"; renderVotesUI(); },
+            function () { if (votesState === "loading") { votesState = "off"; renderVotesUI(); } });
+  }
+  function sendVote(method, slot, name) {
+    return fetch("/api/votes", { method: method, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slot: slot, name: name }) })
+      .catch(function () { throw new Error("No connection. Check your internet and try again."); })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok) throw new Error(j.error || "Couldn't save the vote. Try again.");
+          return j;
+        });
+      });
+  }
+  function renderVotesUI() { renderDetail(); renderVoteSummary(); }
+
+  function openSheet(d, s) {
+    var id = slotId(d, s), opener = document.activeElement;
+    var back = el("div", "sheet-backdrop");
+    var sh = el("div", "sheet"); sh.setAttribute("role", "dialog"); sh.setAttribute("aria-modal", "true"); sh.setAttribute("aria-labelledby", "sheet-title");
+    back.appendChild(sh);
+
+    function close() { back.remove(); document.removeEventListener("keydown", onKey); if (opener && opener.focus) try { opener.focus(); } catch (e) {} }
+    function onKey(e) { if (e.key === "Escape") close(); }
+    back.addEventListener("click", function (e) { if (e.target === back) close(); });
+    document.addEventListener("keydown", onKey);
+
+    function draw() {
+      sh.innerHTML = "";
+      var names = votes[id] || [], mine = myVotes[id];
+      if (mine && !names.some(function (n) { return n.toLowerCase() === mine.toLowerCase(); })) { delete myVotes[id]; mine = null; saveLocal(); }
+
+      var head = el("div", "sheet-head");
+      var ht = el("div");
+      ht.appendChild(el("h2", null, "Vote for this time")).id = "sheet-title";
+      ht.appendChild(el("p", "when", fmtDate(d.date) + " · " + s.label + "–" + s.endLabel));
+      head.appendChild(ht);
+      var x = el("button", "x", "&times;"); x.type = "button"; x.setAttribute("aria-label", "Close"); x.onclick = close;
+      head.appendChild(x);
+      sh.appendChild(head);
+
+      sh.appendChild(el("p", "hint", "Your name shows on this time so others know you want to play. Everyone can see the names."));
+      sh.appendChild(el("div", "hint", names.length ? "<b>" + names.length + (names.length === 1 ? " vote" : " votes") + "</b>" : "No votes yet. Be the first."));
+      if (names.length) sh.appendChild(voterChips(names, 99));
+
+      var err = el("p", "err"); err.hidden = true; err.setAttribute("role", "alert");
+      function fail(e) { err.textContent = e.message; err.hidden = false; }
+
+      if (mine) {
+        var row = el("div", "mine-row");
+        var t = el("span"); t.appendChild(document.createTextNode("You voted as ")); var b = el("b"); b.textContent = mine; t.appendChild(b); row.appendChild(t);
+        var rm = el("button", "btn", "Remove my vote"); rm.type = "button";
+        rm.onclick = function () {
+          rm.disabled = true; err.hidden = true;
+          sendVote("DELETE", id, mine).then(function (j) {
+            if (j.names && j.names.length) votes[id] = j.names; else delete votes[id];
+            delete myVotes[id]; saveLocal(); renderVotesUI(); close();
+            toast("Vote removed", fmtDate(d.date) + " · " + s.label + "–" + s.endLabel);
+          }, function (e) { rm.disabled = false; fail(e); });
+        };
+        row.appendChild(rm);
+        sh.appendChild(row);
+      } else {
+        var form = el("form"); form.noValidate = true;
+        form.appendChild(el("label", null, "Your name")).setAttribute("for", "voter-name");
+        var fr = el("div", "form-row");
+        var input = el("input"); input.id = "voter-name"; input.name = "name"; input.maxLength = 40; input.autocomplete = "name"; input.placeholder = "e.g. Kevin"; input.value = myName;
+        var go = el("button", "btn primary", "Vote"); go.type = "submit";
+        fr.appendChild(input); fr.appendChild(go); form.appendChild(fr);
+        form.onsubmit = function (e) {
+          e.preventDefault();
+          var name = input.value.replace(/\s+/g, " ").trim();
+          if (!name) { fail(new Error("Enter your name so others know who voted.")); input.focus(); return; }
+          go.disabled = true; err.hidden = true;
+          sendVote("POST", id, name).then(function (j) {
+            votes[id] = j.names || [name];
+            var saved = (j.names || []).find(function (n) { return n.toLowerCase() === name.toLowerCase(); }) || name;
+            myVotes[id] = saved; myName = saved; saveLocal(); renderVotesUI(); close();
+            toast("Vote saved", saved + " · " + fmtDate(d.date) + " · " + s.label + "–" + s.endLabel);
+          }, function (e) { go.disabled = false; fail(e); });
+        };
+        sh.appendChild(form);
+        setTimeout(function () { input.focus(); }, 30);
+      }
+      sh.appendChild(err);
+    }
+    draw();
+    document.body.appendChild(back);
+    if (myVotes[id]) setTimeout(function () { var xb = sh.querySelector(".x"); if (xb) xb.focus(); }, 30);
+  }
+
+  function renderVoteSummary() {
+    var box = document.getElementById("votes-list"); box.innerHTML = "";
+    if (votesState === "loading") { box.appendChild(el("div", "empty", "Loading votes…")); return; }
+    if (votesState === "off") { box.appendChild(el("div", "empty", "Voting isn't available right now.")); return; }
+    var rows = [];
+    days.forEach(function (d, i) {
+      d.slots.forEach(function (s) {
+        var n = votes[slotId(d, s)];
+        if (n && n.length) rows.push({ d: d, i: i, s: s, names: n, past: isPast(d, s, now) });
+      });
+    });
+    if (!rows.length) { box.appendChild(el("div", "empty", "No votes yet. Tap Vote on a time to show you want to play then.")); return; }
+    rows.sort(function (a, b) {
+      return (a.past - b.past) || (b.names.length - a.names.length) || (a.d.date - b.d.date) || (a.s.start - b.s.start);
+    });
+    var top = rows[0].past ? 0 : rows[0].names.length;
+    rows.forEach(function (r) {
+      var b = el("button", "vrow" + (r.past ? " past" : "") + (!r.past && r.names.length === top && top > 1 ? " top" : "")); b.type = "button";
+      b.appendChild(el("span", "when", shortDate(r.d.date) + " · " + r.s.label + "–" + r.s.endLabel));
+      var who = el("span", "who"); who.textContent = r.names.join(", "); b.appendChild(who);
+      b.appendChild(el("span", "n", r.names.length + "<small>" + (r.names.length === 1 ? "vote" : "votes") + "</small>"));
+      b.onclick = function () {
+        select(r.i);
+        var card = document.querySelector('[data-slot="' + slotId(r.d, r.s) + '"]');
+        if (card) { card.scrollIntoView({ block: "center", behavior: "smooth" }); card.classList.remove("flash"); void card.offsetWidth; card.classList.add("flash"); }
+      };
+      box.appendChild(b);
+    });
+  }
   var now = new Date();
   var sel = 0;
   days.forEach(function (d, i) { if (dayStatus(d, now) === "today") sel = i; });
@@ -403,11 +613,15 @@ function boot(text) {
           var past = isPast(d, s, now);
           var isNow = st === "today" && s.start <= nowHour(now) && s.end > nowHour(now);
           var c = el("div", "slot" + (past ? " past" : "") + (isNow ? " now" : ""));
+          var id = slotId(d, s), names = votes[id] || [];
+          c.setAttribute("data-slot", id);
           var row = el("div", "meta-row");
           row.appendChild(el("div", "time", s.label + " <small>– " + s.endLabel + "</small>"));
           if (past) row.appendChild(el("span", "pill", "Passed"));
           c.appendChild(row);
+          if (names.length) c.appendChild(voterChips(names, 3));
           if (!past) {
+            var acts = el("div", "slot-actions");
             var b = el("button", "book", "<span>Reserve</span>"); b.type = "button";
             b.setAttribute("aria-label", "Reserve " + s.label + " to " + s.endLabel + " (copies a booking message)");
             b.onclick = function () {
@@ -418,7 +632,16 @@ function boot(text) {
                 toast("Booking message copied. Paste it in your chat with the committee.", msg);
               });
             };
-            c.appendChild(b);
+            acts.appendChild(b);
+            if (votesState !== "off") {
+              var v = el("button", "vote" + (myVotes[id] ? " mine" : "")); v.type = "button";
+              v.appendChild(el("span", null, myVotes[id] ? "Voted" : "Vote"));
+              if (names.length) v.appendChild(el("span", "count", String(names.length)));
+              v.setAttribute("aria-label", (myVotes[id] ? "You voted for " : "Vote for ") + s.label + " to " + s.endLabel + (names.length ? ", " + names.length + " votes so far" : ""));
+              v.onclick = function () { openSheet(d, s); };
+              acts.appendChild(v);
+            }
+            c.appendChild(acts);
           }
           list.appendChild(c);
         });
@@ -461,7 +684,12 @@ function boot(text) {
 
   function select(i) { sel = i; renderDays(); renderDetail(); renderGrid(); }
   select(sel);
-  setInterval(function () { now = new Date(); renderDays(); renderDetail(); renderGrid(); }, 5 * 60 * 1000);
+  renderVoteSummary();
+  loadVotes();
+  setInterval(function () { now = new Date(); renderDays(); renderDetail(); renderGrid(); renderVoteSummary(); }, 5 * 60 * 1000);
+  // Pick up other members' votes while the page is open (skipped while a vote sheet is open).
+  setInterval(function () { if (!document.hidden && !document.querySelector(".sheet-backdrop")) loadVotes(); }, 30 * 1000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden && !document.querySelector(".sheet-backdrop")) loadVotes(); });
 }
 
 (function load() {

@@ -24,6 +24,15 @@ Listed hours show as **free**; hours not listed show as booked. Indonesian or En
 - `docs/admin.html`: paste-and-check page for the committee
 - `docs/schedule.txt`: the schedule data
 - `docs/schedule.js`: reads the schedule text (shared by both pages)
+- `api/votes.js`: stores and returns votes (Vercel function)
+
+## Votes
+
+Members tap **Vote** on a time and enter their name. Everyone sees who voted on each time and in the **Voted times** list. Votes are stored in Upstash Redis.
+
+One-time setup in Vercel: project **Storage → Create Database → Upstash for Redis** (free plan), connect it to this project, then redeploy. Vercel adds the `KV_REST_API_URL` and `KV_REST_API_TOKEN` environment variables automatically. Until then the page shows "Voting isn't available right now" and everything else keeps working.
+
+There are no accounts: anyone with the link can vote under any name, so it suits a club group, not a public page.
 
 ## Vercel settings
 
