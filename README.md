@@ -27,4 +27,4 @@ Listed hours show as **free**; hours not listed show as booked. Indonesian or En
 
 ## Vercel settings
 
-Root Directory `docs`, Framework Preset `Other`, no build command.
+Framework Preset `Other`, no build command. The root `vercel.json` serves the site from `docs/`, so Root Directory can stay at the repo root.
