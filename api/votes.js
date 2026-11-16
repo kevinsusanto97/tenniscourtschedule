@@ -2,10 +2,15 @@
 //   GET    /api/votes                  -> { votes: { "2026-11-16_10:00": ["Andi", "Budi"] } }
 //   POST   /api/votes { slot, name }   -> { slot, names }
 //   DELETE /api/votes { slot, name }   -> { slot, names }
-// Uses the service role key on the server only; the table has RLS on and no public policies.
+// Works with the publishable key (public by design; access comes from the RLS policies in
+// supabase/votes.sql). A secret key set in Vercel env vars takes precedence.
 
-const SB_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/$/, "");
-const SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || "";
+const PROJECT_URL = "https://qshxymcoyvtfucojngng.supabase.co";
+const PUBLISHABLE_KEY = "sb_publishable_knBCXxj1AmGiXMqD-Af_3w_VeR_RB6o";
+
+const SB_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || PROJECT_URL).replace(/\/$/, "");
+const SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY ||
+  process.env.SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || PUBLISHABLE_KEY;
 const SLOT_RE = /^\d{4}-\d{2}-\d{2}_\d{2}:\d{2}$/;
 const MAX_NAMES = 40;
 const KEEP_DAYS = 14; // GET returns votes from two weeks back onwards

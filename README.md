@@ -31,15 +31,10 @@ Listed hours show as **free**; hours not listed show as booked. Indonesian or En
 
 Members tap **Vote** on a time and enter their name. Everyone sees who voted on each time and in the **Voted times** list. Votes are stored in the Supabase table `votes`.
 
-One-time setup:
+Setup (already done for this project):
 
-1. Supabase → **SQL Editor** → run `supabase/votes.sql`.
-2. Vercel → project **Settings → Environment Variables**, add for Production (and Preview if you use it):
-   - `SUPABASE_URL`: Supabase **Project Settings → Data API** → Project URL
-   - `SUPABASE_SERVICE_ROLE_KEY`: Supabase **Project Settings → API Keys** → the `service_role` key (or a new secret key, `sb_secret_…`)
-3. Redeploy.
-
-The key stays on the server (`api/votes.js`); the page never sees it. Until it's set, the page shows "Voting isn't available right now" and everything else keeps working.
+1. Supabase → **SQL Editor** → run `supabase/votes.sql`. It creates the table and lets members read, add and remove votes.
+2. `api/votes.js` holds the Project URL and the publishable key. Both are public by design; access comes from the policies in step 1. To use a different project, change them there or set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` (or a secret key in `SUPABASE_SERVICE_ROLE_KEY`) in Vercel.
 
 There are no accounts: anyone with the link can vote under any name, so it suits a club group, not a public page.
 
