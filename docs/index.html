@@ -74,10 +74,12 @@ header.band .wrap { padding-block: 22px 18px; position: relative; z-index: 1; }
 .eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ball); font-weight: 600; }
 h1 { font-family: var(--f-display); font-weight: 700; font-size: 34px; line-height: 1; margin: 6px 0 6px; letter-spacing: .01em; text-wrap: balance; }
 .sub { color: #b9cdc3; font-size: 14px; margin: 0; }
+.draft { margin: 12px 0 0; padding: 8px 12px; border-radius: 10px; background: var(--ball); color: var(--ball-ink); font-size: 13px; font-weight: 500; }
+.draft a { color: inherit; font-weight: 600; }
 
 /* Sticky day picker */
 .picker { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--court-deep); border-bottom: 1px solid rgba(255,255,255,.06); }
-.days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; padding-block: 10px 12px; }
+.days { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(42px, 1fr); gap: 6px; padding-block: 10px 12px; overflow-x: auto; scrollbar-width: none; }
 .day {
   appearance: none; border: 0; cursor: pointer; font: inherit;
   background: rgba(255,255,255,.07); color: #dbe8e1; border-radius: 12px;
@@ -135,10 +137,25 @@ main .wrap { padding-block: 18px 40px; display: flex; flex-direction: column; ga
 }
 .slot .time { font-family: var(--f-display); font-weight: 600; font-size: 21px; line-height: 1.1; font-variant-numeric: tabular-nums; letter-spacing: .01em; white-space: nowrap; }
 .slot .time small { font-size: 15px; color: var(--muted); font-weight: 500; }
-.pill { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 99px; background: var(--free-soft); color: var(--free); white-space: nowrap; }
+.pill { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 99px; background: var(--taken); color: var(--muted); white-space: nowrap; }
 .slot.past { opacity: .55; }
-.slot.past .pill { background: var(--taken); color: var(--muted); }
 .slot.now { border-color: var(--free); box-shadow: 0 0 0 1px var(--free) inset; }
+.slot .meta-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 8px; width: 100%; }
+.book {
+  appearance: none; font: inherit; font-size: 14px; min-height: 38px; font-weight: 600; cursor: pointer; width: 100%;
+  margin-top: 2px; padding: 8px 10px; border-radius: 10px; border: 0;
+  background: var(--court); color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.book:focus-visible { outline: 2px solid var(--ball); outline-offset: 2px; }
+.book.ok { background: var(--free); }
+.toast {
+  position: fixed; z-index: 20; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: 528px; margin: 0 auto;
+  background: var(--court-deep); color: #eef5f0; border-radius: var(--r); padding: 12px 14px; font-size: 13.5px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25); transition: opacity .2s, transform .2s;
+}
+.toast b { color: var(--ball); display: block; margin-bottom: 2px; }
+.toast[aria-hidden="true"] { opacity: 0; transform: translateY(8px); pointer-events: none; }
 
 .empty { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--r); padding: 22px; text-align: center; color: var(--muted); }
 
@@ -165,82 +182,57 @@ table.grid tr.sel th.rowh { color: var(--free); }
 
 footer { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 14px; }
 
+/* Small phones (iPhone SE, older Android) */
+@media (max-width: 360px) {
+  h1 { font-size: 28px; }
+  .days { gap: 4px; grid-auto-columns: minmax(36px, 1fr); }
+  .day { border-radius: 10px; }
+  .day .dd { font-size: 19px; }
+  .day .dn, .day .dc { font-size: 9.5px; letter-spacing: .04em; }
+  .summary h2 { font-size: 24px; }
+  .big b { font-size: 34px; }
+  .slots { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .slot { padding: 9px 10px; }
+  .slot .time { font-size: 18px; }
+  .slot .time small { font-size: 13px; }
+}
+/* Large phones in landscape and tablets */
+@media (min-width: 600px) {
+  .wrap { max-width: 760px; }
+  h1 { font-size: 40px; }
+  .days { gap: 8px; }
+  .day { padding-block: 10px 9px; }
+  .day .dd { font-size: 26px; }
+  .slots { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+}
+/* Desktop: day detail on the left, week grid beside it */
+@media (min-width: 960px) {
+  .wrap { max-width: 1120px; }
+  main .wrap { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); align-items: start; gap: 28px 40px; padding-block: 28px 56px; }
+  section.week { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 96px); }
+  footer { grid-column: 1 / -1; }
+  .summary h2 { font-size: 34px; }
+  .toast { left: auto; right: max(24px, env(safe-area-inset-right, 0px)); max-width: 420px; }
+}
+@media (hover: hover) {
+  .book:hover { filter: brightness(1.12); }
+  .day:not([aria-selected="true"]):hover { background: rgba(255,255,255,.13); }
+  table.grid tr:hover th.rowh { color: var(--free); }
+}
+
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
 <style>body { margin: 0; } [hidden] { display: none !important; }</style>
 </head>
 <body>
-<!--
-  SCHEDULE DATA — replace the text below with the latest schedule.
-  Format: a day line "SENIN, 16 NOVEMBER 2026" followed by time lines "06:00 - 07:00".
-  Listed hours = court AVAILABLE. Indonesian or English day/month names both work.
--->
-<script type="text/plain" id="schedule-text">
-Untuk jadwal lapangan tennis saat ini
-SENIN, 16 NOVEMBER 2026
-06:00 - 07:00
-07:00 - 08:00
-10:00 - 11:00
-11:00 - 12:00
-12:00 - 13:00
-13:00 - 14:00
-14:00 - 15:00
-15:00 - 16:00
-21:00 - 22:00
-SELASA, 17 NOVEMBER 2026
-06:00 - 07:00
-07:00 - 08:00
-10:00 - 11:00
-11:00 - 12:00
-12:00 - 13:00
-13:00 - 14:00
-14:00 - 15:00
-15:00 - 16:00
-16:00 - 17:00
-RABU, 18 NOVEMBER 2026
-11:00 - 12:00
-12:00 - 13:00
-13:00 - 14:00
-14:00 - 15:00
-15:00 - 16:00
-21:00 - 22:00
-KAMIS, 19 NOVEMBER 2026
-06:00 - 07:00
-07:00 - 08:00
-11:00 - 12:00
-12:00 - 13:00
-13:00 - 14:00
-14:00 - 15:00
-16:00 - 17:00
-18:00 - 19:00
-JUMAT, 20 NOVEMBER 2026
-10:00 - 11:00
-11:00 - 12:00
-12:00 - 13:00
-13:00 - 14:00
-14:00 - 15:00
-15:00 - 16:00
-16:00 - 17:00
-21:00 - 22:00
-SABTU , 21 NOVEMBER 2026
-12:00 - 13:00
-13:00 - 14:00
-21:00 - 22:00
-MINGGU , 22 NOVEMBER 2026
-11:00 - 12:00
-12:00 - 13:00
-13:00 - 14:00
-14:00 - 15:00
-15:00 - 16:00
-21:00 - 22:00
-</script>
 
 <header class="band">
   <div class="wrap">
     <div class="eyebrow">Court availability</div>
     <h1>Tennis Court Schedule</h1>
     <p class="sub" id="range"></p>
+    <p class="draft" id="draft-banner" hidden>Draft preview from the admin page. Members still see the published schedule. <a href="./">View published</a></p>
   </div>
 </header>
 
@@ -250,7 +242,7 @@ MINGGU , 22 NOVEMBER 2026
 
 <main>
   <div class="wrap">
-    <section id="detail" aria-live="polite"></section>
+    <section id="detail" aria-live="polite"><div class="empty">Loading schedule…</div></section>
 
     <section class="week">
       <h2>Week at a glance</h2>
@@ -262,11 +254,11 @@ MINGGU , 22 NOVEMBER 2026
   </div>
 </main>
 
+<div class="toast" id="toast" role="status" aria-live="polite" aria-hidden="true"></div>
+
+<script src="schedule.js"></script>
 <script>
-(function () {
-  var MONTHS = { JANUARI:0, JANUARY:0, FEBRUARI:1, FEBRUARY:1, MARET:2, MARCH:2, APRIL:3, MEI:4, MAY:4, JUNI:5, JUNE:5, JULI:6, JULY:6, AGUSTUS:7, AUGUST:7, SEPTEMBER:8, OKTOBER:9, OCTOBER:9, NOVEMBER:10, DESEMBER:11, DECEMBER:11 };
-  var DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-  var MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+function boot(text) {
   var GROUPS = [
     { name: "Morning", from: 0,  to: 11 },
     { name: "Midday",  from: 11, to: 15 },
@@ -274,26 +266,6 @@ MINGGU , 22 NOVEMBER 2026
     { name: "Evening", from: 18, to: 24 }
   ];
 
-  function parse(text) {
-    var days = [], cur = null;
-    var dayRe = /^(SENIN|SELASA|RABU|KAMIS|JUM'?AT|SABTU|MINGGU|MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY|SUNDAY)\s*,?\s*(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/i;
-    var timeRe = /(\d{1,2})[:.](\d{2})\s*[-–—]\s*(\d{1,2})[:.](\d{2})/;
-    text.split(/\r?\n/).forEach(function (raw) {
-      var line = raw.trim(); if (!line) return;
-      var d = line.match(dayRe);
-      if (d) {
-        var m = MONTHS[d[3].toUpperCase()];
-        if (m === undefined) return;
-        cur = { date: new Date(+d[4], m, +d[2]), slots: [] };
-        days.push(cur); return;
-      }
-      var t = line.match(timeRe);
-      if (t && cur) cur.slots.push({ start: +t[1] + +t[2] / 60, end: +t[3] + +t[4] / 60, label: pad(t[1]) + ":" + t[2], endLabel: pad(t[3]) + ":" + t[4] });
-    });
-    days.forEach(function (d) { d.slots.sort(function (a, b) { return a.start - b.start; }); });
-    return days;
-  }
-  function pad(n) { return String(n).padStart(2, "0"); }
   function sameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
   function nowHour(now) { return now.getHours() + now.getMinutes() / 60; }
   function dayStatus(d, now) {
@@ -316,9 +288,26 @@ MINGGU , 22 NOVEMBER 2026
     return out;
   }
   function fmtDate(d) { return DAY_NAMES[d.getDay()] + ", " + d.getDate() + " " + MONTH_NAMES[d.getMonth()]; }
+  var HARI = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  var BULAN = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  function fmtTanggal(d) { return HARI[d.getDay()] + ", " + d.getDate() + " " + BULAN[d.getMonth()] + " " + d.getFullYear(); }
+  function copyText(text, done) {
+    function fallback() {
+      var ta = el("textarea"); ta.value = text; ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand("copy"); done(); } catch (e) {} ta.remove();
+    }
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+  }
+  var toastTimer;
+  function toast(title, body) {
+    var t = document.getElementById("toast");
+    t.innerHTML = ""; t.appendChild(el("b", null, title)); t.appendChild(document.createTextNode(body));
+    t.setAttribute("aria-hidden", "false");
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.setAttribute("aria-hidden", "true"); }, 3500);
+  }
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
 
-  var days = parse(document.getElementById("schedule-text").textContent);
+  var days = parseSchedule(text).days;
   var now = new Date();
   var sel = 0;
   days.forEach(function (d, i) { if (dayStatus(d, now) === "today") sel = i; });
@@ -348,7 +337,7 @@ MINGGU , 22 NOVEMBER 2026
       btn.type = "button"; btn.id = "day-" + i; btn.setAttribute("role", "tab");
       btn.setAttribute("aria-selected", i === sel ? "true" : "false");
       btn.setAttribute("aria-label", fmtDate(d.date) + ", " + d.slots.length + " free hours");
-      btn.innerHTML = '<span class="dn">' + DAY_NAMES[d.date.getDay()].slice(0, 3) + '</span><span class="dd">' + d.date.getDate() + '</span><span class="dc">' + d.slots.length + ' hrs</span>';
+      btn.innerHTML = '<span class="dn">' + DAY_NAMES[d.date.getDay()].slice(0, 3) + '</span><span class="dd">' + d.date.getDate() + '</span><span class="dc">' + d.slots.length + (d.slots.length === 1 ? ' hr' : ' hrs') + '</span>';
       btn.onclick = function () { select(i); };
       box.appendChild(btn);
     });
@@ -414,8 +403,23 @@ MINGGU , 22 NOVEMBER 2026
           var past = isPast(d, s, now);
           var isNow = st === "today" && s.start <= nowHour(now) && s.end > nowHour(now);
           var c = el("div", "slot" + (past ? " past" : "") + (isNow ? " now" : ""));
-          c.appendChild(el("div", "time", s.label + " <small>– " + s.endLabel + "</small>"));
-          c.appendChild(el("span", "pill", past ? "Passed" : isNow ? "Now" : "Free"));
+          var row = el("div", "meta-row");
+          row.appendChild(el("div", "time", s.label + " <small>– " + s.endLabel + "</small>"));
+          if (past) row.appendChild(el("span", "pill", "Passed"));
+          c.appendChild(row);
+          if (!past) {
+            var b = el("button", "book", "<span>Reserve</span>"); b.type = "button";
+            b.setAttribute("aria-label", "Reserve " + s.label + " to " + s.endLabel + " (copies a booking message)");
+            b.onclick = function () {
+              var msg = "Saya mau reservasi lapangan tennis untuk " + fmtTanggal(d.date) + " - " + s.label + "-" + s.endLabel;
+              copyText(msg, function () {
+                b.classList.add("ok"); b.lastChild.textContent = "Copied";
+                setTimeout(function () { b.classList.remove("ok"); b.lastChild.textContent = "Reserve"; }, 1800);
+                toast("Booking message copied. Paste it in your chat with the committee.", msg);
+              });
+            };
+            c.appendChild(b);
+          }
           list.appendChild(c);
         });
         grp.appendChild(list);
@@ -428,14 +432,7 @@ MINGGU , 22 NOVEMBER 2026
     copy.onclick = function () {
       var text = "Free tennis court slots — " + fmtDate(d.date) + "\n" +
         (d.slots.length ? blocks(d.slots).map(function (x) { return "• " + x.label + " – " + x.endLabel; }).join("\n") : "Fully booked");
-      function done() { copy.textContent = "Copied"; copy.classList.add("ok"); setTimeout(function () { copy.textContent = "Copy this day's schedule"; copy.classList.remove("ok"); }, 1800); }
-      try {
-        navigator.clipboard.writeText(text).then(done, fallback);
-      } catch (e) { fallback(); }
-      function fallback() {
-        var ta = el("textarea"); ta.value = text; ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta);
-        ta.select(); try { document.execCommand("copy"); done(); } catch (e) {} ta.remove();
-      }
+      copyText(text, function () { copy.textContent = "Copied"; copy.classList.add("ok"); setTimeout(function () { copy.textContent = "Copy this day's schedule"; copy.classList.remove("ok"); }, 1800); });
     };
     act.appendChild(copy);
     wrap.appendChild(act);
@@ -465,6 +462,17 @@ MINGGU , 22 NOVEMBER 2026
   function select(i) { sel = i; renderDays(); renderDetail(); renderGrid(); }
   select(sel);
   setInterval(function () { now = new Date(); renderDays(); renderDetail(); renderGrid(); }, 5 * 60 * 1000);
+}
+
+(function load() {
+  var draft = null;
+  if (/[?&]draft=1/.test(location.search)) { try { draft = localStorage.getItem("scheduleDraft"); } catch (e) {} }
+  if (draft != null) { document.getElementById("draft-banner").hidden = false; boot(draft); return; }
+  fetch("schedule.txt", { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(boot, function () {
+      document.getElementById("detail").innerHTML = '<div class="empty">Couldn\'t load the schedule. Check your connection and reload the page.</div>';
+    });
 })();
 </script>
 
